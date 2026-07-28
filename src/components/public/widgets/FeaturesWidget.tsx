@@ -36,7 +36,11 @@ export default function FeaturesWidget({ content }: Props) {
               className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow"
               style={{ borderRadius: "var(--radius)" }}
             >
-              {item.icon && <div className="text-4xl mb-4">{item.icon}</div>}
+              {item.image ? (
+                <img src={item.image} alt={item.title || "Feature"} className="w-12 h-12 object-contain mx-auto mb-4" />
+              ) : item.icon ? (
+                <div className="text-4xl mb-4">{item.icon}</div>
+              ) : null}
               {item.title && <h3 className="text-xl font-semibold mb-2">{item.title}</h3>}
               {item.description && <p className="text-gray-600">{item.description}</p>}
             </motion.div>

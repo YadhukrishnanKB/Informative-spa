@@ -1,4 +1,3 @@
-import type { Widget } from "@/types";
 import HeroWidget from "./widgets/HeroWidget";
 import ContentWidget from "./widgets/ContentWidget";
 import FeaturesWidget from "./widgets/FeaturesWidget";
@@ -9,13 +8,18 @@ import GalleryWidget from "./widgets/GalleryWidget";
 import PackagesWidget from "./widgets/PackagesWidget";
 
 interface Props {
-  widget: Widget;
+  widget: any;
 }
 
 export default function WidgetRenderer({ widget }: Props) {
-  const content = widget.content ? JSON.parse(widget.content) : {};
+  // Payload blocks use blockType; legacy widgets use type
+  const blockType = widget.blockType || widget.type;
 
-  switch (widget.type) {
+  // Payload blocks have data directly on the object;
+  // legacy widgets stored content as a JSON string
+  const content = widget.content ? (typeof widget.content === 'string' ? JSON.parse(widget.content) : widget.content) : widget;
+
+  switch (blockType) {
     case "hero":
       return <HeroWidget content={content} />;
     case "content":

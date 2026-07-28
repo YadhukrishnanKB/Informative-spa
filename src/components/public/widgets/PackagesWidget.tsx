@@ -10,34 +10,7 @@ interface Props {
 export default function PackagesWidget({ content }: Props) {
   const { heading, description, items } = content || {};
 
-  const defaultItems = [
-    {
-      title: "Quick Rejuvenation",
-      price: "$75",
-      duration: "45 Mins",
-      description: "Perfect for a quick reset during a busy workday.",
-      features: ["Swedish Back Massage", "Herbal Tea Service", "Steam Room Access"],
-      popular: false,
-    },
-    {
-      title: "Signature Wellness",
-      price: "$145",
-      duration: "90 Mins",
-      description: "Our most popular balanced massage and skin treatment package.",
-      features: ["Hot Stone Therapy", "Aromatherapy Session", "Rejuvenating Facial", "Relaxation Lounge access"],
-      popular: true,
-    },
-    {
-      title: "Luxury Escape",
-      price: "$230",
-      duration: "150 Mins",
-      description: "The ultimate indulgence session for complete relaxation.",
-      features: ["Full Body Deep Tissue Massage", "Organic Hydrating Facial", "Foot Reflexology Treatment", "Glass of Champagne"],
-      popular: false,
-    },
-  ];
-
-  const packageItems = items && items.length > 0 ? items : defaultItems;
+  if (!items?.length) return null;
 
   return (
     <section id="pricing" className="py-16 md:py-24 bg-gray-50">
@@ -52,7 +25,7 @@ export default function PackagesWidget({ content }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {packageItems.map((pkg: any, idx: number) => (
+          {items.map((pkg: any, idx: number) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 30 }}

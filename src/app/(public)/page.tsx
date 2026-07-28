@@ -1,26 +1,30 @@
-import { prisma } from "@/lib/prisma";
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import WidgetRenderer from "@/components/public/WidgetRenderer";
 
 export async function generateMetadata() {
-  const page = await prisma.page.findUnique({ where: { slug: "home" } });
+  const payload = await getPayload({ config })
+  const pages = await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1 })
+  const page = pages.docs[0]
   return {
-    title: page?.metaTitle || "Home",
-    description: page?.metaDesc || "",
+    title: (page?.metaTitle as string) || "Home",
+    description: (page?.metaDesc as string) || "",
   };
 }
 
 export default async function HomePage() {
-  const page = await prisma.page.findUnique({
-    where: { slug: "home" },
-    include: { widgets: { orderBy: { order: "asc" } } },
-  });
+  const payload = await getPayload({ config })
+  const pages = await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1 })
+  const page = pages.docs[0]
 
   if (!page) return <div className="pt-20 text-center">Page not found</div>;
 
+  const widgets = (page as any).widgets || [];
+
   return (
     <>
-      {page.widgets.map((widget) => (
-        <WidgetRenderer key={widget.id} widget={widget} />
+      {widgets.map((widget: any, index: number) => (
+        <WidgetRenderer key={widget.id || index} widget={widget} />
       ))}
     </>
   );

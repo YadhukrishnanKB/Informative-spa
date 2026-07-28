@@ -5,17 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
-  const [logoText, setLogoText] = useState("");
 
   useEffect(() => {
-    // Fetch dynamic logo from theme settings if initialized
-    fetch("/api/theme")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.logoText) setLogoText(data.logoText);
-      })
-      .catch(() => {});
-
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2200);
@@ -43,7 +34,7 @@ export default function Preloader() {
               }}
               className="text-4xl md:text-5xl font-bold uppercase tracking-[0.25em] font-serif text-[#d4af37] mb-4"
             >
-              {logoText}
+              Sephoraspa
             </motion.h1>
 
             <motion.div 

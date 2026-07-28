@@ -1,7 +1,3 @@
-import type { Page, Widget, ThemeSetting, ContactMessage } from "@prisma/client";
-
-export type WidgetType = "hero" | "content" | "features" | "testimonials" | "gallery" | "faq" | "contact";
-
 export interface WidgetContent {
   heading?: string;
   subheading?: string;
@@ -36,5 +32,3 @@ export interface ThemeValues {
   favicon?: string;
   footerText?: string;
 }
-
-export type { Page, Widget, ThemeSetting, ContactMessage };

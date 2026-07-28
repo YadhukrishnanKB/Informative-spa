@@ -11,8 +11,10 @@ export default function VideoWidget({ content }: Props) {
   const { heading, description } = content || {};
   const [isOpen, setIsOpen] = useState(false);
 
-  const coverImage = content?.coverImage || content?.image || "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=1200";
-  const videoUrl = content?.videoUrl || content?.buttonLink || "https://www.youtube.com/embed/dQw4w9WgXcQ";
+  if (!content?.videoUrl && !content?.coverImage && !heading && !description) return null;
+
+  const coverImage = content?.coverImage || content?.image;
+  const videoUrl = content?.videoUrl || content?.buttonLink;
 
   const fallbackCover = coverImage;
   const embedUrl = videoUrl;

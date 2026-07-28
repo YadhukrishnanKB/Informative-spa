@@ -9,16 +9,7 @@ interface Props {
 export default function GalleryWidget({ content }: Props) {
   const { heading, description, items } = content || {};
 
-  const defaultItems = [
-    { title: "Massage Room", image: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=600" },
-    { title: "Stone Therapy", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600" },
-    { title: "Aromatherapy", image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600" },
-    { title: "Facial Care", image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=600" },
-    { title: "Relaxation Pool", image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=600" },
-    { title: "Herbal Tea Lounge", image: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=600" },
-  ];
-
-  const galleryItems = items && items.length > 0 ? items : defaultItems;
+  if (!items?.length) return null;
 
   return (
     <section id="gallery" className="py-16 md:py-24 bg-white">
@@ -33,7 +24,7 @@ export default function GalleryWidget({ content }: Props) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {galleryItems.map((item: any, idx: number) => (
+          {items.map((item: any, idx: number) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}

@@ -9,12 +9,12 @@ interface Props {
 }
 
 export default function HeroWidget({ content }: Props) {
-  const { heading, subheading, description, buttonText, buttonLink, image } = content || {};
+  const { heading, subheading, description, buttonText, buttonLink, image, locations: cmsLocations } = content || {};
 
   // Use generated premium hero background image if none specified
   const bgImage = image || "/hero-bg.png";
 
-  const locations = [
+  const locations = (cmsLocations && cmsLocations.length > 0) ? cmsLocations : [
     { name: "Edappally" },
     { name: "MG Road" },
     { name: "Thoppumpady" },
@@ -50,9 +50,9 @@ export default function HeroWidget({ content }: Props) {
           )}
 
           <h1 className="text-5xl md:text-7xl font-medium text-white mb-6 leading-tight tracking-tight font-serif">
-            Everyone deserves <br />
-            <span className="text-[#d4a373]">a good massage </span>
-            {/* <span className="inline-block animate-bounce">😊</span> */}
+            {heading || (
+              <>Everyone deserves <br /><span className="text-[#d4a373]">a good massage </span></>
+            )}
           </h1>
 
           {/* Locations grid */}

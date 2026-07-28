@@ -13,16 +13,6 @@ export default function ThreeParticles() {
     let animationFrameId: number;
     let logoText = "Sephoraspa";
 
-    const loadLogoAndStart = async () => {
-      try {
-        const r = await fetch("/api/theme");
-        const data = await r.json();
-        if (data.logoText) logoText = data.logoText;
-      } catch {}
-
-      initThree();
-    };
-
     const initThree = () => {
       const THREE = (window as any).THREE;
       if (!THREE || !containerRef.current) return;
@@ -218,7 +208,7 @@ export default function ThreeParticles() {
       };
     };
 
-    loadLogoAndStart();
+    initThree();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
