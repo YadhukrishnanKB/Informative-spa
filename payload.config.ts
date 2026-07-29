@@ -4,9 +4,15 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig } from 'payload'
 import { parse as parseConnectionString } from 'pg-connection-string'
 
-const databaseUrl = parseConnectionString(process.env.DATABASE_URL || '')
-const { sslmode: _sslmode, ssl: _ssl, ...poolOptions } = databaseUrl
-poolOptions.ssl = { rejectUnauthorized: false }
+const parsed = parseConnectionString(process.env.DATABASE_URL || '')
+const poolOptions = {
+  host: parsed.host || undefined,
+  port: parsed.port ? Number(parsed.port) : undefined,
+  database: parsed.database || undefined,
+  user: parsed.user || undefined,
+  password: parsed.password || undefined,
+  ssl: { rejectUnauthorized: false },
+}
 
 export default buildConfig({
   editor: lexicalEditor(),
