@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import logo from "../../../public/Logo.png";
+import { useBgm } from "./BgmPlayer";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -27,6 +28,8 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const bgm = useBgm();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent backdrop-blur-md border-b border-[#2b2a28]/10">
       <AnimatePresence>
@@ -41,15 +44,16 @@ export default function Header() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
-            <span>Connect with us: (555) 123-4567</span>
+            <Link href="tel:+919567476609">
+              Connect with us: +91 95674 76609
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
 
       <nav
-        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-500 ${
-          isScrolled ? "h-16" : "h-20"
-        }`}
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-500 ${isScrolled ? "h-16" : "h-20"
+          }`}
       >
         {/* Logo mark: droplet glyph + serif wordmark */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -62,7 +66,7 @@ export default function Header() {
             whileHover={{ rotate: -8 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
           > */}
-            {/* <path
+          {/* <path
               d="M12 2.5C12 2.5 5.5 10 5.5 14.5a6.5 6.5 0 0013 0C18.5 10 12 2.5 12 2.5z"
               stroke="#b08d57"
               strokeWidth="1.4"
@@ -109,6 +113,17 @@ export default function Header() {
               <span className="relative">{link.label}</span>
             </Link>
           ))}
+          {bgm.hasAudio && (
+            <button
+              onClick={bgm.togglePlay}
+              className={`relative px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1.5 ${bgm.isPlaying ? "text-[#b08d57]" : "text-[#E6BE8A]/60 hover:text-[#E6BE8A]"
+                }`}
+              title={bgm.isPlaying ? "Pause background music" : "Play background music"}
+            >
+              <span className={bgm.isPlaying ? "animate-pulse" : ""}>♫</span>
+              <span>{bgm.isPlaying ? "Playing..." : "Relaxation"}</span>
+            </button>
+          )}
           <Link
             href="/contact"
             className="ml-3 px-5 py-2.5 rounded-full text-[#E6BE8A] font-semibold transition-all hover:scale-105 active:scale-95 text-xs uppercase tracking-wider bg-[#b08d57] hover:bg-[#9c7c4c]"
@@ -151,6 +166,16 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+              {bgm.hasAudio && (
+                <button
+                  onClick={() => { bgm.togglePlay(); setOpen(false); }}
+                  className={`w-full text-left py-2.5 font-medium flex items-center gap-2 ${bgm.isPlaying ? "text-[#b08d57]" : "text-[#4a473f]"
+                    }`}
+                >
+                  <span className={bgm.isPlaying ? "animate-pulse" : ""}>♫</span>
+                  <span>{bgm.isPlaying ? "Playing..." : "Relaxation"}</span>
+                </button>
+              )}
               <Link
                 href="/contact"
                 className="block text-center mt-3 px-5 py-2.5 rounded-full text-[#f7f3ea] font-semibold bg-[#b08d57]"

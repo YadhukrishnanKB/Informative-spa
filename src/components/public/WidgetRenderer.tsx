@@ -6,6 +6,11 @@ import ContactWidget from "./widgets/ContactWidget";
 import VideoWidget from "./widgets/VideoWidget";
 import GalleryWidget from "./widgets/GalleryWidget";
 import PackagesWidget from "./widgets/PackagesWidget";
+import MapWidget from "./widgets/MapWidget";
+import FAQWidget from "./widgets/FAQWidget";
+import StatsWidget from "./widgets/StatsWidget";
+import ProcessWidget from "./widgets/ProcessWidget";
+import PromoWidget from "./widgets/PromoWidget";
 
 interface Props {
   widget: any;
@@ -36,6 +41,16 @@ export default function WidgetRenderer({ widget }: Props) {
       return <GalleryWidget content={content} />;
     case "packages":
       return <PackagesWidget content={content} />;
+    case "map":
+      return <MapWidget content={content} />;
+    case "faq":
+      return <FAQWidget content={content} />;
+    case "stats":
+      return <StatsWidget content={content} />;
+    case "process":
+      return <ProcessWidget content={content} />;
+    case "promo":
+      return <PromoWidget content={content} />;
     default:
       return null;
   }

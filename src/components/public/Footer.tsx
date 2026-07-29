@@ -25,9 +25,14 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4 font-serif">Contact Info</h3>
             <div className="space-y-2 text-white/80 text-sm">
-              <p>123 Wellness Avenue, New York, NY 10001</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Email: hello@sephoraspa.com</p>
+              <p>Door No.2601/A 2nd floor,Elanjikkal Tower Near Alibaba restaurant,Above Reporter T.V,11th Cross Road,Panampilliy Nagar-682036</p>
+              <Link className="mb-4" href="tel:+919567476609">
+                Connect with us: +91 95674 76609
+              </Link>
+              <br />
+              <Link href="mailto:sephoraspa7@gmail.com">
+                Email: sephoraspa7@gmail.com
+              </Link>
             </div>
           </div>
         </div>

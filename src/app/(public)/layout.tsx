@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Preloader from "@/components/public/Preloader";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
+import BgmPlayer from "@/components/public/BgmPlayer";
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import "../globals.css";
@@ -18,6 +19,7 @@ const geistMono = Geist_Mono({
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   let themeCSS = "";
+  let bgmSettings = null;
   try {
     const payload = await getPayload({ config })
     const settings = await payload.findGlobal({ slug: 'theme-settings' })
@@ -28,6 +30,7 @@ export default async function PublicLayout({ children }: { children: React.React
         }
       }
     }
+    bgmSettings = await payload.findGlobal({ slug: 'bgm-settings' })
   } catch {}
 
   return (
@@ -40,7 +43,9 @@ export default async function PublicLayout({ children }: { children: React.React
       </head>
       <body className="min-h-screen flex flex-col font-sans">
         <Preloader />
-        <Header />
+        <BgmPlayer settings={bgmSettings}>
+          <Header />
+        </BgmPlayer>
         <main className="flex-1">{children}</main>
         <Footer />
         <a

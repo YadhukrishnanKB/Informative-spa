@@ -88,7 +88,7 @@ export default function HeroWidget({ content }: Props) {
         </motion.div>
 
         {/* Scroll Down Indicator */}
-        <motion.div
+        {/* <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
           className="flex flex-col items-center justify-center text-white/40 hover:text-white/80 cursor-pointer pt-12"
@@ -97,7 +97,7 @@ export default function HeroWidget({ content }: Props) {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

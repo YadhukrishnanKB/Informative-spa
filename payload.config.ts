@@ -2,6 +2,11 @@ import sharp from 'sharp'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig } from 'payload'
+import { parse as parseConnectionString } from 'pg-connection-string'
+
+const databaseUrl = parseConnectionString(process.env.DATABASE_URL || '')
+const { sslmode: _sslmode, ssl: _ssl, ...poolOptions } = databaseUrl
+poolOptions.ssl = { rejectUnauthorized: false }
 
 export default buildConfig({
   editor: lexicalEditor(),
@@ -187,6 +192,78 @@ export default buildConfig({
                 { name: 'description', type: 'textarea' },
               ],
             },
+            {
+              slug: 'map',
+              labels: { singular: 'Map', plural: 'Map' },
+              fields: [
+                { name: 'heading', type: 'text' },
+                { name: 'address', type: 'text' },
+                { name: 'embedUrl', type: 'text', admin: { description: 'Google Maps embed iframe src URL' } },
+                { name: 'height', type: 'number', defaultValue: 450, admin: { description: 'Map height in pixels' } },
+              ],
+            },
+            {
+              slug: 'faq',
+              labels: { singular: 'FAQ', plural: 'FAQ' },
+              fields: [
+                { name: 'heading', type: 'text' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'question', type: 'text' },
+                    { name: 'answer', type: 'textarea' },
+                  ],
+                },
+              ],
+            },
+            {
+              slug: 'stats',
+              labels: { singular: 'Stats', plural: 'Stats' },
+              fields: [
+                { name: 'heading', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'number', type: 'text', admin: { description: 'e.g. "500+" or "99%"' } },
+                    { name: 'label', type: 'text' },
+                    { name: 'icon', type: 'text', admin: { description: 'Emoji icon (e.g. 🏆)' } },
+                  ],
+                },
+              ],
+            },
+            {
+              slug: 'process',
+              labels: { singular: 'Process', plural: 'Process' },
+              fields: [
+                { name: 'heading', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'steps',
+                  type: 'array',
+                  fields: [
+                    { name: 'title', type: 'text' },
+                    { name: 'description', type: 'textarea' },
+                    { name: 'icon', type: 'text', admin: { description: 'Emoji icon (e.g. 📅)' } },
+                  ],
+                },
+              ],
+            },
+            {
+              slug: 'promo',
+              labels: { singular: 'Promo Banner', plural: 'Promo Banners' },
+              fields: [
+                { name: 'heading', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                { name: 'buttonText', type: 'text' },
+                { name: 'buttonLink', type: 'text' },
+                { name: 'backgroundImage', type: 'text', admin: { description: 'Image URL for the banner background' } },
+                { name: 'overlayColor', type: 'text', defaultValue: '#0a3d3d', admin: { description: 'Hex overlay color (e.g. #0a3d3d)' } },
+                { name: 'overlayOpacity', type: 'number', defaultValue: 70, min: 0, max: 100, admin: { description: 'Overlay opacity 0–100' } },
+              ],
+            },
           ],
         },
       ],
@@ -228,35 +305,41 @@ export default buildConfig({
         { name: 'footerText', type: 'text' },
       ],
     },
+    {
+      slug: 'bgm-settings',
+      admin: {
+        group: 'Settings',
+      },
+      fields: [
+        { name: 'enableBgm', type: 'checkbox', defaultValue: false, label: 'Enable Background Music' },
+        { name: 'audioUrl', type: 'text', admin: { description: 'YouTube link or direct MP3/OGG audio URL' } },
+        { name: 'volume', type: 'number', defaultValue: 30, min: 0, max: 100, admin: { description: 'Volume 0–100' } },
+      ],
+    },
   ],
 
   secret: process.env.PAYLOAD_SECRET || 'super-secret-change-me',
 
   db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URL || '',
-    },
+    pool: poolOptions,
   }),
 
   sharp,
 
   onInit: async (payload) => {
-    // Check if already seeded
+    // Always ensure admin@spa.com / admin123 exists
+    const adminEmail = 'admin@spa.com'
+    const adminPass = 'admin123'
+    const existingAdmin = await payload.find({ collection: 'users', where: { email: { equals: adminEmail } }, limit: 1 })
+    if (existingAdmin.docs.length > 0) {
+      await payload.update({ collection: 'users', id: existingAdmin.docs[0].id, data: { password: adminPass } })
+    } else {
+      await payload.create({ collection: 'users', data: { email: adminEmail, password: adminPass, name: 'Admin' } })
+    }
+
+    // Skip remaining seed if pages already exist
     const existingPages = await payload.find({ collection: 'pages', limit: 1 })
     if (existingPages.docs.length > 0) return
-
-    // Create admin user
-    const existingUsers = await payload.find({ collection: 'users', limit: 1 })
-    if (existingUsers.docs.length === 0) {
-      await payload.create({
-        collection: 'users',
-        data: {
-          email: 'admin@spa.com',
-          password: 'admin123',
-          name: 'Admin',
-        },
-      })
-    }
 
     // Create home page
     const home = await payload.create({
@@ -301,6 +384,36 @@ export default buildConfig({
               { title: 'Emily Davis', description: 'Professional, relaxing, and luxurious.' },
             ],
           },
+          {
+            blockType: 'stats',
+            heading: 'Our Spa by Numbers',
+            description: 'Years of excellence in wellness and relaxation.',
+            items: [
+              { number: '500+', label: 'Happy Clients', icon: '😊' },
+              { number: '10+', label: 'Years Experience', icon: '🌟' },
+              { number: '50+', label: 'Expert Therapists', icon: '👩‍⚕️' },
+              { number: '4.9', label: 'Average Rating', icon: '⭐' },
+            ],
+          },
+          {
+            blockType: 'promo',
+            heading: 'Special Spring Offer',
+            description: 'Enjoy 20% off on all massage therapies this season. Book your appointment today and experience true relaxation.',
+            buttonText: 'Claim Offer',
+            buttonLink: '/contact',
+            backgroundImage: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200',
+            overlayColor: '#0a3d3d',
+            overlayOpacity: 70,
+          },
+          {
+            blockType: 'faq',
+            heading: 'Frequently Asked Questions',
+            items: [
+              { question: 'What should I wear for my massage?', answer: 'We provide comfortable robes and slippers. You can undress to your comfort level; your therapist will drape you professionally throughout the treatment.' },
+              { question: 'How early should I arrive?', answer: 'We recommend arriving 15 minutes before your appointment to check in, change, and relax in our waiting area.' },
+              { question: 'Do you offer gift certificates?', answer: 'Yes! We offer digital and physical gift certificates for any amount or specific treatment.' },
+            ],
+          },
         ],
       },
     })
@@ -330,6 +443,28 @@ export default buildConfig({
               { title: 'Customized Care', description: 'Treatments tailored to you', icon: '❤️' },
             ],
           },
+          {
+            blockType: 'stats',
+            heading: 'Our Journey',
+            description: 'Dedicated to wellness since day one.',
+            items: [
+              { number: '10+', label: 'Years', icon: '📅' },
+              { number: '50+', label: 'Therapists', icon: '👩‍⚕️' },
+              { number: '500+', label: 'Clients', icon: '😊' },
+              { number: '4.9', label: 'Rating', icon: '⭐' },
+            ],
+          },
+          {
+            blockType: 'process',
+            heading: 'Your Spa Journey',
+            description: 'From booking to bliss — here is how it works.',
+            steps: [
+              { title: 'Choose Your Treatment', description: 'Browse our wide range of spa therapies and select the one that speaks to you.', icon: '📋' },
+              { title: 'Book Your Slot', description: 'Pick a convenient date and time through our easy booking system or call us directly.', icon: '📅' },
+              { title: 'Arrive & Relax', description: 'Arrive 15 minutes early, change into your robe, and let the stress melt away in our calming lounge.', icon: '🧘' },
+              { title: 'Enjoy & Rejuvenate', description: 'Let our expert therapists pamper you with a tailored treatment. You will leave feeling renewed.', icon: '✨' },
+            ],
+          },
         ],
       },
     })
@@ -354,6 +489,22 @@ export default buildConfig({
             heading: 'Visit Us',
             description: '123 Wellness Avenue\nNew York, NY 10001\n\nPhone: (555) 123-4567\nEmail: hello@serenityspa.com',
           },
+          {
+            blockType: 'map',
+            heading: 'Find Us Here',
+            address: '123 Wellness Avenue, New York, NY 10001',
+            embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095919406!2d-73.985428!3d40.748817!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQ0JzU1LjgiTiA3M8KwNTknMDcuNSJX!5e0!3m2!1sen!2sus!4v1!4m8!1m7!1s0x89c259af5b8e3c7f:0x0!2sNew+York!3b1!8m2!3d40.7127753!4d-74.0059728',
+            height: 400,
+          },
+          {
+            blockType: 'faq',
+            heading: 'Quick Answers',
+            items: [
+              { question: 'What are your opening hours?', answer: 'We are open Monday to Saturday, 9 AM to 8 PM. Sundays by appointment only.' },
+              { question: 'Do I need to book in advance?', answer: 'We recommend booking at least 24 hours in advance to secure your preferred time slot.' },
+              { question: 'What payment methods do you accept?', answer: 'We accept cash, all major credit cards, and digital payments.' },
+            ],
+          },
         ],
       },
     })
@@ -367,6 +518,16 @@ export default buildConfig({
         accentColor: '#e8c7a7',
         fontFamily: 'Inter, sans-serif',
         borderRadius: '8px',
+      },
+    })
+
+    // Seed BGM settings
+    await payload.updateGlobal({
+      slug: 'bgm-settings',
+      data: {
+        enableBgm: true,
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        volume: 30,
       },
     })
   },
