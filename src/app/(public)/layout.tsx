@@ -7,6 +7,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import "../globals.css";
 
+export const dynamic = 'force-dynamic'
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -49,7 +51,7 @@ export default async function PublicLayout({ children }: { children: React.React
         <main className="flex-1">{children}</main>
         <Footer />
         <a
-          href="https://wa.me/15551234567"
+          href="https://wa.me/+919567476609"
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:scale-105 hover:bg-[#20ba5a] active:scale-95 transition-all duration-300 group"

@@ -57,7 +57,7 @@ export default function HeroWidget({ content }: Props) {
 
           {/* Locations grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 max-w-xl">
-            {locations.map((loc, index) => (
+            {locations.map((loc: { name: string }, index: number) => (
               <motion.div
                 key={loc.name}
                 initial={{ opacity: 0, x: -10 }}

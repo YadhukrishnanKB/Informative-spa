@@ -3,11 +3,21 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig } from 'payload'
 import { parse as parseConnectionString } from 'pg-connection-string'
+import {
+  revalidatePage,
+  revalidatePageDelete,
+  revalidateThemeSettings,
+} from './src/payload/hooks/revalidate'
 
-const databaseUrl = parseConnectionString(process.env.DATABASE_URL || '')
-const { sslmode: _sslmode, ssl: _ssl, ...poolOptions } = databaseUrl
-poolOptions.ssl = { rejectUnauthorized: false }
-
+const parsed = parseConnectionString(process.env.DATABASE_URL || '')
+const poolOptions = {
+  host: parsed.host || undefined,
+  port: parsed.port ? Number(parsed.port) : undefined,
+  database: parsed.database || undefined,
+  user: parsed.user || undefined,
+  password: parsed.password || undefined,
+  ssl: { rejectUnauthorized: false },
+}
 export default buildConfig({
   editor: lexicalEditor(),
 
@@ -33,6 +43,10 @@ export default buildConfig({
       admin: {
         useAsTitle: 'title',
         defaultColumns: ['title', 'slug', 'published', 'updatedAt'],
+      },
+      hooks: {
+        afterChange: [revalidatePage],
+        afterDelete: [revalidatePageDelete],
       },
       fields: [
         {
@@ -296,6 +310,9 @@ export default buildConfig({
       admin: {
         group: 'Settings',
       },
+      hooks: {
+        afterChange: [revalidateThemeSettings],
+      },
       fields: [
         { name: 'primaryColor', type: 'text', defaultValue: '#0a3d3d' },
         { name: 'secondaryColor', type: 'text', defaultValue: '#d4a373' },
@@ -327,22 +344,23 @@ export default buildConfig({
   sharp,
 
   onInit: async (payload) => {
-    // Always ensure admin@spa.com / admin123 exists
-    const adminEmail = 'admin@spa.com'
-    const adminPass = 'admin123'
-    const existingAdmin = await payload.find({ collection: 'users', where: { email: { equals: adminEmail } }, limit: 1 })
-    if (existingAdmin.docs.length > 0) {
-      await payload.update({ collection: 'users', id: existingAdmin.docs[0].id, data: { password: adminPass } })
-    } else {
-      await payload.create({ collection: 'users', data: { email: adminEmail, password: adminPass, name: 'Admin' } })
-    }
+    try {
+      // Always ensure admin@spa.com / admin123 exists
+      const adminEmail = 'admin@spa.com'
+      const adminPass = 'admin123'
+      const existingAdmin = await payload.find({ collection: 'users', where: { email: { equals: adminEmail } }, limit: 1 })
+      if (existingAdmin.docs.length > 0) {
+        await payload.update({ collection: 'users', id: existingAdmin.docs[0].id, data: { password: adminPass } })
+      } else {
+        await payload.create({ collection: 'users', data: { email: adminEmail, password: adminPass, name: 'Admin' } })
+      }
 
-    // Skip remaining seed if pages already exist
-    const existingPages = await payload.find({ collection: 'pages', limit: 1 })
-    if (existingPages.docs.length > 0) return
+      // Skip remaining seed if pages already exist
+      const existingPages = await payload.find({ collection: 'pages', limit: 1 })
+      if (existingPages.docs.length > 0) return
 
-    // Create home page
-    const home = await payload.create({
+      // Create home page
+      const home = await payload.create({
       collection: 'pages',
       data: {
         title: 'Home',
@@ -530,5 +548,8 @@ export default buildConfig({
         volume: 30,
       },
     })
+    } catch (error) {
+      console.error('Seed error (non-fatal):', error)
+    }
   },
 })
