@@ -3,6 +3,11 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig } from 'payload'
 import { parse as parseConnectionString } from 'pg-connection-string'
+import {
+  revalidatePage,
+  revalidatePageDelete,
+  revalidateThemeSettings,
+} from './src/payload/hooks/revalidate'
 
 const parsed = parseConnectionString(process.env.DATABASE_URL || '')
 const poolOptions = {
@@ -13,7 +18,6 @@ const poolOptions = {
   password: parsed.password || undefined,
   ssl: { rejectUnauthorized: false },
 }
-
 export default buildConfig({
   editor: lexicalEditor(),
 
@@ -39,6 +43,10 @@ export default buildConfig({
       admin: {
         useAsTitle: 'title',
         defaultColumns: ['title', 'slug', 'published', 'updatedAt'],
+      },
+      hooks: {
+        afterChange: [revalidatePage],
+        afterDelete: [revalidatePageDelete],
       },
       fields: [
         {
@@ -301,6 +309,9 @@ export default buildConfig({
       slug: 'theme-settings',
       admin: {
         group: 'Settings',
+      },
+      hooks: {
+        afterChange: [revalidateThemeSettings],
       },
       fields: [
         { name: 'primaryColor', type: 'text', defaultValue: '#0a3d3d' },
