@@ -344,22 +344,23 @@ export default buildConfig({
   sharp,
 
   onInit: async (payload) => {
-    // Always ensure admin@spa.com / admin123 exists
-    const adminEmail = 'admin@spa.com'
-    const adminPass = 'admin123'
-    const existingAdmin = await payload.find({ collection: 'users', where: { email: { equals: adminEmail } }, limit: 1 })
-    if (existingAdmin.docs.length > 0) {
-      await payload.update({ collection: 'users', id: existingAdmin.docs[0].id, data: { password: adminPass } })
-    } else {
-      await payload.create({ collection: 'users', data: { email: adminEmail, password: adminPass, name: 'Admin' } })
-    }
+    try {
+      // Always ensure admin@spa.com / admin123 exists
+      const adminEmail = 'admin@spa.com'
+      const adminPass = 'admin123'
+      const existingAdmin = await payload.find({ collection: 'users', where: { email: { equals: adminEmail } }, limit: 1 })
+      if (existingAdmin.docs.length > 0) {
+        await payload.update({ collection: 'users', id: existingAdmin.docs[0].id, data: { password: adminPass } })
+      } else {
+        await payload.create({ collection: 'users', data: { email: adminEmail, password: adminPass, name: 'Admin' } })
+      }
 
-    // Skip remaining seed if pages already exist
-    const existingPages = await payload.find({ collection: 'pages', limit: 1 })
-    if (existingPages.docs.length > 0) return
+      // Skip remaining seed if pages already exist
+      const existingPages = await payload.find({ collection: 'pages', limit: 1 })
+      if (existingPages.docs.length > 0) return
 
-    // Create home page
-    const home = await payload.create({
+      // Create home page
+      const home = await payload.create({
       collection: 'pages',
       data: {
         title: 'Home',
@@ -547,5 +548,8 @@ export default buildConfig({
         volume: 30,
       },
     })
+    } catch (error) {
+      console.error('Seed error (non-fatal):', error)
+    }
   },
 })
